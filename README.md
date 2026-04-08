@@ -1,11 +1,13 @@
 # Artemis2 Tracker
 
-A Python application to track NASA's Artemis2 spacecraft using NASA's Open APIs.
+A Python application to track NASA's Artemis2 spacecraft using NASA's Open APIs and Artemis mission telemetry APIs.
 
 ## Features
 
 - Display mission status and tracking information
-- Fetch real-time Artemis telemetry data
+- Fetch real-time Artemis telemetry data (attitude, thrusters, systems)
+- Fetch Artemis orbit data (speed, distances, orbital parameters)
+- Fetch Artemis state vector data (precise position/velocity vectors)
 - Links to NASA resources for additional tracking
 
 ## Installation
@@ -40,3 +42,4 @@ Get your free API key from [NASA's API Portal](https://api.nasa.gov/). The app u
 - [NASA Eyes 3D Tracker](https://eyes.nasa.gov/apps/solar-system/)
 - [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/)
 - [NASA Open APIs](https://api.nasa.gov/)
+- [Artemis Mission APIs](https://artemis.cdnspace.ca/api-docs)
