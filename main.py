@@ -43,6 +43,19 @@ def fetch_artemis_state():
     except requests.exceptions.RequestException as e:
         return {"error": f"Failed to fetch Artemis state data: {e}"}
 
+def fetch_artemis_all():
+    """
+    Fetch comprehensive Artemis data including DSN communication status.
+    """
+    url = "https://artemis.cdnspace.ca/api/all"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Failed to fetch Artemis all data: {e}"}
+
 def display_tracking_info():
     """
     Display tracking information for Artemis 2.
@@ -134,6 +147,43 @@ def display_tracking_info():
         
         timestamp = state_vector.get('timestamp', 'N/A')
         print(f"  State Timestamp: {timestamp}")
+
+    # Fetch Artemis all data (includes DSN communication status)
+    all_data = fetch_artemis_all()
+    
+    print("\nDeep Space Network (DSN) Communication:")
+    if "error" in all_data:
+        print(f"  Error: {all_data['error']}")
+    else:
+        dsn_data = all_data.get('dsn', {})
+        dishes = dsn_data.get('dishes', [])
+        print(f"  Signal Active: {dsn_data.get('signalActive', 'N/A')}")
+        print(f"  Timestamp: {dsn_data.get('timestamp', 'N/A')}")
+        print(f"  Active Dishes:")
+        
+        for dish in dishes:
+            dish_name = dish.get('dish', 'Unknown')
+            station = dish.get('stationName', 'Unknown')
+            downlink_active = dish.get('downlinkActive', False)
+            uplink_active = dish.get('uplinkActive', False)
+            
+            if downlink_active or uplink_active:
+                status = []
+                if downlink_active:
+                    rate = dish.get('downlinkRate', 0)
+                    band = dish.get('downlinkBand', '')
+                    status.append(f"DL:{rate/1e6:.1f}Mbps({band})")
+                if uplink_active:
+                    band = dish.get('uplinkBand', '')
+                    status.append(f"UL({band})")
+                
+                az = dish.get('azimuth', 'N/A')
+                el = dish.get('elevation', 'N/A')
+                range_km = dish.get('rangeKm', 'N/A')
+                rtlt = dish.get('rtltSeconds', 'N/A')
+                
+                print(f"    {dish_name} ({station}): {', '.join(status)}")
+                print(f"      Position: Az={az}°, El={el}°  |  Range: {range_km}km  |  RTL: {rtlt}s")
 
     print("\nNote: For precise real-time position data, use the NASA Eyes application")
     print("      or JPL Horizons system with spacecraft ID '500@0' (Orion).")

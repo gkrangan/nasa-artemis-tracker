@@ -8,6 +8,7 @@ A Python application to track NASA's Artemis2 spacecraft using NASA's Open APIs 
 - Fetch real-time Artemis telemetry data (attitude, thrusters, systems)
 - Fetch Artemis orbit data (speed, distances, orbital parameters)
 - Fetch Artemis state vector data (precise position/velocity vectors)
+- Fetch Deep Space Network (DSN) communication status and dish tracking data
 - Links to NASA resources for additional tracking
 
 ## Installation
