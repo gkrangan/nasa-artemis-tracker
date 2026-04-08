@@ -17,6 +17,32 @@ def fetch_artemis_telemetry():
     except requests.exceptions.RequestException as e:
         return {"error": f"Failed to fetch Artemis telemetry: {e}"}
 
+def fetch_artemis_orbit():
+    """
+    Fetch Artemis orbit data.
+    """
+    url = "https://artemis.cdnspace.ca/api/orbit"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Failed to fetch Artemis orbit data: {e}"}
+
+def fetch_artemis_state():
+    """
+    Fetch Artemis state vector data.
+    """
+    url = "https://artemis.cdnspace.ca/api/state"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except requests.exceptions.RequestException as e:
+        return {"error": f"Failed to fetch Artemis state data: {e}"}
+
 def display_tracking_info():
     """
     Display tracking information for Artemis 2.
@@ -65,6 +91,49 @@ def display_tracking_info():
         
         timestamp = telemetry_data.get('timestamp', 'N/A')
         print(f"  Last Update: {timestamp}")
+
+    # Fetch Artemis orbit data
+    orbit_data = fetch_artemis_orbit()
+    
+    print("\nArtemis Orbit Data:")
+    if "error" in orbit_data:
+        print(f"  Error: {orbit_data['error']}")
+    else:
+        # Display orbit information
+        met_hours = orbit_data.get('metMs', 0) / (1000 * 3600)  # Convert ms to hours
+        print(f"  Mission Elapsed Time: {met_hours:.1f} hours")
+        print(f"  Speed: {orbit_data.get('speedKmS', 'N/A'):.3f} km/s ({orbit_data.get('speedKmH', 'N/A'):.0f} km/h)")
+        print(f"  Relative to Moon: {orbit_data.get('moonRelSpeedKmH', 'N/A'):.0f} km/h")
+        print(f"  Altitude: {orbit_data.get('altitudeKm', 'N/A'):.0f} km")
+        print(f"  Distance to Earth: {orbit_data.get('earthDistKm', 'N/A'):.0f} km")
+        print(f"  Distance to Moon: {orbit_data.get('moonDistKm', 'N/A'):.0f} km")
+        print(f"  Periapsis: {orbit_data.get('periapsisKm', 'N/A'):.0f} km")
+        print(f"  Apoapsis: {orbit_data.get('apoapsisKm', 'N/A'):.0f} km")
+        print(f"  G-Force: {orbit_data.get('gForce', 'N/A'):.6f} g")
+
+    # Fetch Artemis state data
+    state_data = fetch_artemis_state()
+    
+    print("\nArtemis State Vector:")
+    if "error" in state_data:
+        print(f"  Error: {state_data['error']}")
+    else:
+        # Display state vector information
+        state_vector = state_data.get('stateVector', {})
+        met_hours = state_vector.get('metMs', 0) / (1000 * 3600)  # Convert ms to hours
+        print(f"  Mission Elapsed Time: {met_hours:.1f} hours")
+        
+        position = state_vector.get('position', {})
+        print(f"  Position (km): X={position.get('x', 'N/A'):.1f}, Y={position.get('y', 'N/A'):.1f}, Z={position.get('z', 'N/A'):.1f}")
+        
+        velocity = state_vector.get('velocity', {})
+        print(f"  Velocity (km/s): X={velocity.get('x', 'N/A'):.3f}, Y={velocity.get('y', 'N/A'):.3f}, Z={velocity.get('z', 'N/A'):.3f}")
+        
+        moon_pos = state_data.get('moonPosition', {})
+        print(f"  Moon Position (km): X={moon_pos.get('x', 'N/A'):.1f}, Y={moon_pos.get('y', 'N/A'):.1f}, Z={moon_pos.get('z', 'N/A'):.1f}")
+        
+        timestamp = state_vector.get('timestamp', 'N/A')
+        print(f"  State Timestamp: {timestamp}")
 
     print("\nNote: For precise real-time position data, use the NASA Eyes application")
     print("      or JPL Horizons system with spacecraft ID '500@0' (Orion).")
