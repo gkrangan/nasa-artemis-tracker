@@ -4,18 +4,18 @@ import requests
 from datetime import datetime
 import os
 
-def fetch_nasa_artemis_data():
+def fetch_artemis_telemetry():
     """
-    Fetch Artemis-related data from NASA's Image and Video Library.
+    Fetch real-time Artemis telemetry data.
     """
-    url = "https://images-api.nasa.gov/search?q=artemis"
+    url = "https://artemis.cdnspace.ca/api/arow"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
         return data
     except requests.exceptions.RequestException as e:
-        return {"error": f"Failed to fetch Artemis data: {e}"}
+        return {"error": f"Failed to fetch Artemis telemetry: {e}"}
 
 def display_tracking_info():
     """
@@ -39,27 +39,32 @@ def display_tracking_info():
     print("  - JPL Horizons (Ephemeris): https://ssd.jpl.nasa.gov/horizons/")
     print("  - Mission Updates: https://www.nasa.gov/artemis-ii-news-and-updates/")
 
-    # Fetch NASA's Artemis data
-    artemis_data = fetch_nasa_artemis_data()
+    # Fetch Artemis telemetry data
+    telemetry_data = fetch_artemis_telemetry()
     
-    print("\nNASA Artemis Mission Data:")
-    if "error" in artemis_data:
-        print(f"  Error: {artemis_data['error']}")
+    print("\nArtemis Telemetry Data:")
+    if "error" in telemetry_data:
+        print(f"  Error: {telemetry_data['error']}")
     else:
-        collection = artemis_data.get('collection', {})
-        items = collection.get('items', [])
-        if items:
-            print(f"  Found {len(items)} Artemis-related items.")
-            # Show first item details
-            item = items[0]
-            data = item.get('data', [{}])[0]
-            print(f"  Title: {data.get('title', 'N/A')}")
-            print(f"  Description: {data.get('description', 'N/A')[:200]}...")
-            links = item.get('links', [])
-            if links:
-                print(f"  Image URL: {links[0].get('href', 'N/A')}")
-        else:
-            print("  No Artemis data found.")
+        # Display key telemetry information
+        position = telemetry_data.get('positionKm', {})
+        print(f"  Position (km): X={position.get('x', 'N/A'):.1f}, Y={position.get('y', 'N/A'):.1f}, Z={position.get('z', 'N/A'):.1f}")
+        
+        euler = telemetry_data.get('eulerDeg', {})
+        print(f"  Attitude (deg): Roll={euler.get('roll', 'N/A'):.1f}, Pitch={euler.get('pitch', 'N/A'):.1f}, Yaw={euler.get('yaw', 'N/A'):.1f}")
+        
+        rates = telemetry_data.get('rollRate', 'N/A'), telemetry_data.get('pitchRate', 'N/A'), telemetry_data.get('yawRate', 'N/A')
+        print(f"  Rotation Rates (deg/s): Roll={rates[0]:.3f}, Pitch={rates[1]:.3f}, Yaw={rates[2]:.3f}")
+        
+        print(f"  Signal Light Time: {telemetry_data.get('signalLightTimeSec', 'N/A'):.3f} seconds")
+        
+        thrusters_active = sum(1 for t in telemetry_data.get('rcsThrusters', {}).get('thrusters', {}).values() if t)
+        print(f"  RCS Thrusters Active: {thrusters_active}/14")
+        
+        print(f"  Spacecraft Mode: {telemetry_data.get('spacecraftMode', 'N/A')}")
+        
+        timestamp = telemetry_data.get('timestamp', 'N/A')
+        print(f"  Last Update: {timestamp}")
 
     print("\nNote: For precise real-time position data, use the NASA Eyes application")
     print("      or JPL Horizons system with spacecraft ID '500@0' (Orion).")
