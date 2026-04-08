@@ -22,3 +22,4 @@ coverage.xml
 .hypothesis
 .DS_Store
 .vscode/settings.json
+artemis_dashboard.html

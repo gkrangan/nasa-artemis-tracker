@@ -3,6 +3,7 @@
 import requests
 from datetime import datetime
 import os
+import sys
 
 def fetch_artemis_telemetry():
     """
@@ -190,4 +191,13 @@ def display_tracking_info():
     print("="*50 + "\n")
 
 if __name__ == "__main__":
-    display_tracking_info()
+    if len(sys.argv) > 1 and sys.argv[1] == "--visualize":
+        try:
+            from visualizer import generate_dashboard
+            generate_dashboard()
+        except ImportError:
+            print("Error: Visualization dependencies not installed.")
+            print("Please run: pip install -r requirements.txt")
+    else:
+        display_tracking_info()
+        print("\nTip: Generate interactive visualizations with: python main.py --visualize")

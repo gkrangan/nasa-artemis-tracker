@@ -26,12 +26,27 @@ Set your NASA API key (optional, uses DEMO_KEY if not set):
 export NASA_API_KEY=your_api_key_here
 ```
 
-Run the tracker:
+Run the tracker in CLI mode:
 ```bash
 python main.py
 ```
 
-This will display the current status of Artemis 2 and real-time telemetry data from the Artemis API.
+This will display the current status of Artemis 2 and real-time telemetry data from the Artemis APIs.
+
+### Visualization
+
+Generate interactive HTML visualizations:
+```bash
+python main.py --visualize
+```
+
+This creates `artemis_dashboard.html` with:
+- 3D spacecraft trajectory visualization
+- Orbital metrics dashboard
+- DSN dish tracking positions
+- Real-time mission status summary
+
+Open the HTML file in your web browser to interact with the visualizations.
 
 ## API Key
 
